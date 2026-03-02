@@ -7,6 +7,8 @@ use serde_json::{json, Value};
 use crate::auth::CalendarHubType;
 use crate::error::AppError;
 
+const CALENDAR_SCOPE: &str = "https://www.googleapis.com/auth/calendar.readonly";
+
 pub struct CalendarClient {
     hub: CalendarHubType,
     memory_cache: Cache<String, Value>,
@@ -41,6 +43,8 @@ impl CalendarClient {
             .hub
             .calendar_list()
             .list()
+            .clear_scopes()
+            .add_scope(CALENDAR_SCOPE)
             .doit()
             .await
             .map_err(|e| AppError::GoogleApi(e.to_string()))?;
@@ -94,6 +98,8 @@ impl CalendarClient {
             .single_events(true)
             .order_by("startTime")
             .max_results(100)
+            .clear_scopes()
+            .add_scope(CALENDAR_SCOPE)
             .doit()
             .await
             .map_err(|e| AppError::GoogleApi(e.to_string()))?;
@@ -154,6 +160,8 @@ impl CalendarClient {
             .hub
             .events()
             .get(calendar_id, event_id)
+            .clear_scopes()
+            .add_scope(CALENDAR_SCOPE)
             .doit()
             .await
             .map_err(|e| AppError::GoogleApi(e.to_string()))?;
